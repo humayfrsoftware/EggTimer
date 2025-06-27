@@ -3,6 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <title>Yumurta Zamanlayıcı</title>
+
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <style>
     body { font-family: Arial; text-align: center; padding: 40px; }
     button { margin: 10px; padding: 10px 20px; font-size: 16px; cursor: pointer; border: 1px solid #ccc; }
@@ -56,10 +60,10 @@
         document.getElementById("boiledBtn").style.display = "none";
       }
 
-      // Ortala kalan buton
+      
       document.getElementById("eggType").classList.add("centered");
 
-      // Süre seçeneklerini göster
+      // Süre seçenekleri
       const options = document.getElementById("options");
       options.innerHTML = "";
       const durations = type === "boiled"
