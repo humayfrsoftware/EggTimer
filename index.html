@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Yumurta Zamanlayıcı</title>
+  <style>
+    body { font-family: Arial; text-align: center; padding: 40px; }
+    button { margin: 10px; padding: 10px 20px; font-size: 16px; cursor: pointer; border: 1px solid #ccc; }
+    #timer { font-size: 36px; margin-top: 20px; display: none; }
+    #controlButtons { display: none; margin-top: 20px; }
+    .centered { display: flex; flex-direction: column; align-items: center; }
+  </style>
+</head>
+<body>
+
+  <h1 id="mainTitle">Kahvaltıda Ne Var?</h1>
+
+  <div id="eggType">
+    <button id="boiledBtn">
+      <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQRT3_gjEZ8UDaslY8ngzRGlQ9_in29-GT3qg&s" width="100"><br>
+      Haşlanmış Yumurta
+    </button>
+
+    <button id="sunnyBtn">
+      <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTXVmxgYde-47SByNZNYzW8O1SW5AzrPfHF0w&s" width="100"><br>
+      Tavada Yumurta
+    </button>
+  </div>
+
+  <div id="options"></div>
+  <div id="timer">⏱️ 00:00</div>
+
+  <div id="controlButtons">
+    <button onclick="stopTimer()">⏹️ Durdur</button>
+    <button onclick="resumeTimer()" id="resumeBtn" style="display:none;">▶️ Devam Et</button>
+    <button onclick="resetTimer()">🔁 Sıfırla</button>
+    <button onclick="goBack()">🔙 Geri Dön</button> 
+    </div>
+
+  <audio id="alarm" src="https://www.soundjay.com/misc/sounds/jingle-bell-5.mp3" preload="auto"></audio>
+
+  <script>
+    let countdown;
+    let isCounting = false;
+    let remainingTime = 0;
+
+    document.getElementById("boiledBtn").onclick = () => selectEggType('boiled');
+    document.getElementById("sunnyBtn").onclick = () => selectEggType('sunny');
+
+    function selectEggType(type) {
+    document.getElementById("mainTitle").textContent = "Yumurtanız Nasıl Olsun?";
+      // Diğer butonu gizle
+      if (type === "boiled") {
+        document.getElementById("sunnyBtn").style.display = "none";
+      } else {
+        document.getElementById("boiledBtn").style.display = "none";
+      }
+
+      // Ortala kalan buton
+      document.getElementById("eggType").classList.add("centered");
+
+      // Süre seçeneklerini göster
+      const options = document.getElementById("options");
+      options.innerHTML = "";
+      const durations = type === "boiled"
+        ? { "Az Pişmiş (3 dk)": 3, "Orta Pişmiş (5 dk)": 5, "Çok Pişmiş (7 dk)": 7 }
+        : { "Az Pişmiş (2 dk)": 2, "Orta Pişmiş (3.5 dk)": 3.5, "Çok Pişmiş (5 dk)": 5 };
+
+      for (const [label, min] of Object.entries(durations)) {
+        const btn = document.createElement("button");
+        btn.textContent = label;
+        btn.onclick = () => startTimer(min);
+        options.appendChild(btn);
+      }
+    }
+
+    function startTimer(minutes) {
+      if (isCounting) {
+        if (!confirm("Zamanlayıcı çalışıyor. Yeniden başlatılsın mı?")) return;
+        clearInterval(countdown);
+      }
+      remainingTime = minutes * 60;
+      isCounting = true;
+
+      document.getElementById("timer").style.display = "block";
+      document.getElementById("controlButtons").style.display = "block";
+      document.getElementById("resumeBtn").style.display = "none";
+      
+      updateDisplay(remainingTime);
+
+        countdown = setInterval(() => {
+        remainingTime--;
+        if (remainingTime <= 0) {
+          clearInterval(countdown);
+          isCounting = false;
+          document.getElementById("timer").textContent = "Yumurtanız Hazır! 🥳";
+          document.getElementById("alarm").play();
+        } else {
+          updateDisplay(remainingTime);
+        }
+      }, 1000);
+    }
+
+    function updateDisplay(seconds) {
+      const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+      const s = (seconds % 60).toString().padStart(2, '0');
+      document.getElementById("timer").textContent = `⏱️ ${m}:${s}`;
+    }
+
+    function stopTimer() {
+      clearInterval(countdown);
+      isCounting = false;
+      document.getElementById("resumeBtn").style.display = "inline-block";
+    }
+
+    function resumeTimer() {
+      if (remainingTime > 0) {
+        isCounting = true;
+        document.getElementById("resumeBtn").style.display = "none";
+        countdown = setInterval(() => {
+          remainingTime--;
+          if (remainingTime <= 0) {
+            clearInterval(countdown);
+            isCounting = false;
+            document.getElementById("timer").textContent = "Yumurtanız Hazır! 🥳";
+            document.getElementById("alarm").play();
+          } else {
+            updateDisplay(remainingTime);
+          }
+        }, 1000);
+      }
+    }
+
+    function resetTimer() {
+      clearInterval(countdown);
+      isCounting = false;
+      remainingTime = 0;
+      document.getElementById("timer").textContent = "⏱️ 00:00";
+      document.getElementById("controlButtons").style.display = "none";
+    }
+    function goBack() {
+  document.getElementById("mainTitle").textContent = "Kahvaltıda Ne Var?";
+  clearInterval(countdown);
+  isCounting = false;
+  remainingTime = 0;
+
+  // Sayaç ve butonları gizle
+  document.getElementById("timer").style.display = "none";
+  document.getElementById("timer").textContent = "⏱️ 00:00";
+  document.getElementById("controlButtons").style.display = "none";
+  document.getElementById("resumeBtn").style.display = "none";
+
+  // Süre seçeneklerini temizle
+  document.getElementById("options").innerHTML = "";
+
+  // Yumurtaları geri getir
+  document.getElementById("boiledBtn").style.display = "inline-block";
+  document.getElementById("sunnyBtn").style.display = "inline-block";
+
+  // Ortalamayı kaldır
+  document.getElementById("eggType").classList.remove("centered");
+}
+function resetTimer() {
+  clearInterval(countdown);
+  isCounting = false;
+  remainingTime = 0;
+  document.getElementById("timer").textContent = "⏱️ 00:00";
+  document.getElementById("controlButtons").style.display = "none";
+  document.getElementById("resumeBtn").style.display = "none"; 
+  document.getElementById("resumeBtn").style.display = "none"; 
+}
+ </script>
+</body>
+</html>
+
+
